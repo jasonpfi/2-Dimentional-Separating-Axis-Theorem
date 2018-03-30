@@ -15,25 +15,50 @@ bool Projection::compareProjections(Projection p)
     else return true;
 }
 
+double Projection::getOverlap(Projection p)
+{
+    return std::min(this->getMin() - p.getMax(), this->getMax() - p.getMin());
+}
+/*
 void Shape::output(Shape s)
 {
     if (this->compareShapeProjections(s)) std::cout << "Intersecting" << std::endl;
     else std::cout <<"Not Intersecting" << std::endl;
 }
-
-bool Shape::compareShapeProjections(Shape s)
+*/
+MVT Shape::compareShapeProjections(Shape s)
 {
+    double overlap = -100000;
+    Vector axis;
     for (Vector n1 : this->getLNormals())
     {
-        if (this->project(n1).compareProjections(s.project(n1))) return false;
+        if (this->project(n1).compareProjections(s.project(n1))) return MVT();
+        else
+        {
+            double o = this->project(n1).getOverlap(s.project(n1));
+            if (o > overlap) 
+            {
+                overlap = o;
+                axis = n1;
+            }
+        }
     }
 
     for (Vector n2 : s.getLNormals())
     {
-        if (this->project(n2).compareProjections(s.project(n2))) return false;
+        if (this->project(n2).compareProjections(s.project(n2))) return MVT();
+        else
+        {
+            double o = this->project(n2).getOverlap(s.project(n2));
+            if (o > overlap) 
+            {
+                overlap = o;
+                axis = n2;
+            }
+        }
     }
 
-    return true;
+    return MVT(overlap, axis);
 }
 
 Projection Shape::project(Vector v)
@@ -80,8 +105,12 @@ int main()
     Shape tri2     = Shape({Point(10,20), Point(30,40), Point(50,20)});
     Shape squ2     = Shape({Point(3,1), Point(6,4), Point(3,6), Point(1,1)});
 
-    triangle.output(square);
-    triangle.output(tri2);
-    triangle.output(squ2);
+    MVT m1 = triangle.compareShapeProjections(square);
+    MVT m2 = triangle.compareShapeProjections(tri2);
+    MVT m3 = triangle.compareShapeProjections(squ2);
+
+    std::cout << m1.returnOverlap() << ", "; m1.returnAxis().printVector();
+    std::cout << m2.returnOverlap() << ", "; m2.returnAxis().printVector();
+    std::cout << m3.returnOverlap() << ", "; m3.returnAxis().printVector();
     
 }

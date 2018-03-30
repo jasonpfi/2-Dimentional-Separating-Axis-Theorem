@@ -31,6 +31,8 @@ public:
     void setX(double x) {this->x = x;}
     void setY(double y) {this->y = y;}
 
+    void printVector() {std::cout << x << ", " << y << "\n" << std::endl;}
+
     Vector Lnormalize() {double i = x; this->setX(-y/sqrt(i*i + y*y)); this->setY(i/sqrt(i*i + y*y)); return *this;};
     Vector Rnormalize() {x = y; y = -x;};
 };
@@ -62,15 +64,21 @@ public:
     double getMin() {return x;}
 
     bool compareProjections(Projection p);
+    double getOverlap(Projection p);
 };
 
 // Minimum Translation Vector
-class MVT : public Vector
+class MVT 
 {
+    double overlap;
+    Vector axis;
 public:
 
-    MVT() : Vector() {};
-    MVT(double x, double y) : Vector(x, y) {};
+    MVT() : overlap(0), axis(Vector()) {};
+    MVT(double o, Vector a) : overlap(o), axis(Vector(a)) {};
+
+    double returnOverlap() {return overlap;};
+    Vector returnAxis() {return axis;};
 };
 
 class Shape 
@@ -93,7 +101,7 @@ public:
     std::vector<Vector> getRNormals();
 
     Projection project(Vector v);
-    bool compareShapeProjections(Shape s);
+    MVT compareShapeProjections(Shape s);
 
     void printAllPoints();
     void output(Shape s);
